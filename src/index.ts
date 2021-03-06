@@ -13,7 +13,7 @@ const s3 = new aws.S3()
 let token = process.env.BEARER_TOKEN;
 let endpointUrl = "https://api.twitter.com/2/tweets/search/recent";
 
-exports.handler = (event: any, context: any, callback: Function) => {
+exports.handler = async (event: any, context: any, callback: Function) => {
   // 現在時刻(Tokyo)
   let utcDate: Date = new Date();
   let jstDate: Date = utcToZonedTime(utcDate, 'Asia/Tokyo');
@@ -49,13 +49,13 @@ exports.handler = (event: any, context: any, callback: Function) => {
     ContentType: 'text/plain'
   };
 
-  let putResult = s3.putObject(destparams, (err: Error) => {
-    if (err) {
-      console.log(err, err.stack);
-    }
-  });
+  try {
+    let putResult = await s3.putObject(destparams).promise();
+     console.log(putResult);
+  } catch(err) {
+     console.warn(err, err.stack);
+  }
 
-  console.log(putResult);
 
-  callback(null, 'Hello from Lambda with Typescript');
+  return ('Hello from Lambda with Typescript');
 }
