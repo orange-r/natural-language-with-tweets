@@ -28,17 +28,15 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   console.info(`UTC: ${utcDate}`);
   console.info(`JST: ${jstDate}`);
 
-  console.info(token);
+  // let params = {
+  //   'query': 'from:twitterdev -is:retweet',
+  //   'tweet.fields': 'author_id'
+  // }
 
-  let params = {
-    'query': 'from:twitterdev -is:retweet',
-    'tweet.fields': 'author_id'
-  }
-
-  let headers = {
-      'User-Agent': 'v2RecentSearchJS',
-      'authorization': `Bearer ${token}`
-    }
+  // let headers = {
+  //     'User-Agent': 'v2RecentSearchJS',
+  //     'authorization': `Bearer ${token}`
+  //   }
 
   // needle('get', endpointUrl, params, { headers: headers })
   // .then( (response: needle.NeedleResponse) => {
@@ -50,32 +48,19 @@ exports.handler = async (event: any, context: any, callback: Function) => {
 
   // Twitterからデータ取得
   try {
-    let tweets = await client.get('search/tweets', { q: 'node.js', count: 3, locale: 'ja' } );
+    let tweets = await client.get('search/tweets', { q: '魔王さま exclude:retweets', count: 3, lang: 'ja', locale: 'ja', result_type: 'recent' , max_id: null} );
     console.log('--- resulrt of getting Twitter ---');
     console.log('--- tweets ---');
-    console.table(tweets.statuses.length);
-    console.log('--- tweets[0] ---');
+    console.log(tweets.statuses.length);
+    // console.log('--- tweets[0] ---');
     // console.dir(tweets.statuses[0], { depth: null });
     // console.log(tweets.statuses[0].text);
-    console.log('--- for tweet in tweets ---');
-    for (let it in tweets.statuses) {
-      let tweet = tweets.statuses[it];
-      console.dir(tweet, { depth: null });
-      console.log('------');
-      // console.log(tweets.statuses[0].text);
-      // console.info(`${tweet.created_at}: ${tweet.text}`);
-    }
-    // console.log('--- each tweet of tweets ---');
-    // for (let tweet of tweets.statuses) {
-    //   console.dir(tweet, { depth: null });
-    //   console.log('------');
-    //   console.info(`${tweet.created_at}: ${tweet.text}`);
-    // }
     console.log('--- each tweet of tweets ---');
     for (let tweet of tweets.statuses) {
       console.log('+-----------+');
       console.info(tweet.created_at);
       console.info(tweet.text);
+      // console.dir(tweet, { depth: null });
       console.log('+-----------+');
     }
     // console.log('--- response ---');
