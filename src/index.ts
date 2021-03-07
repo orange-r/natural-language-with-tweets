@@ -56,17 +56,8 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   // Twitterからデータ取得
   try {
     let tweets = await client.get('search/tweets', { q: '魔王さま exclude:retweets', count: 3, lang: 'ja', locale: 'ja', result_type: 'recent' , max_id: null} );
-    console.log('--- resulrt of getting Twitter ---');
-    console.log('--- tweets ---');
-    console.log(tweets.statuses.length);
-    // console.log('--- tweets[0] ---');
-    // console.dir(tweets.statuses[0], { depth: null });
-    // console.log(tweets.statuses[0].text);
     console.log('--- each tweet of tweets ---');
     for (let tweet of tweets.statuses) {
-      console.info(tweet.created_at);
-      console.info(decodeURI(tweet.text));
-      console.log('+--------------------------+');
       let csvRecord: Csv.Record = {
         created_at: tweet.created_at,
         text:       decodeURI(tweet.text)
@@ -74,8 +65,8 @@ exports.handler = async (event: any, context: any, callback: Function) => {
       csvRecords.push(csvRecord)
     }
   } catch (error) {
-     console.warn('ERROR: Twitter.client.get');
-     console.warn(error, error.stack);
+    console.warn('ERROR: Twitter.client.get');
+    console.warn(error, error.stack);
     throw error;
   }
 
@@ -94,8 +85,9 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     csvString = await csvStringify(csvRecords, csvOptions);
     console.log(csvString);
   } catch(error) {
-     console.warn('ERROR: csvSringify');
-     console.warn(error, error.stack);
+    console.warn('ERROR: csvSringify');
+    console.warn(error, error.stack);
+    throw error;
   }
   console.log(csvString);
 
@@ -111,8 +103,9 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     let putResult = await s3.putObject(destparams).promise();
     console.log(putResult);
   } catch(error) {
-     console.warn('ERROR: S3 put Object');
-     console.warn(error, error.stack);
+    console.warn('ERROR: S3 put Object');
+    console.warn(error, error.stack);
+    throw error;
   }
 
 
