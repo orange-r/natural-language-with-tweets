@@ -3,6 +3,10 @@ import { format } from 'date-fns'
 import { utcToZonedTime } from 'date-fns-tz'
 import { ja } from 'date-fns/locale'
 
+// const csvStringify = require('csv-stringify');
+const csvStringify = require('csv-stringify/lib/sync');
+const fs = require('fs').promises;
+
 // AWS
 // let AccessKeyId = process.env.AWS_ACCESS_KEY_ID
 // let SecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
@@ -20,6 +24,7 @@ const client = new Twitter({
 let token = process.env.BEARER_TOKEN;
 let endpointUrl = 'https://api.twitter.com/2/tweets/search/recent';
 
+// called function
 exports.handler = async (event: any, context: any, callback: Function) => {
   // 現在時刻(Tokyo)
   let utcDate: Date = new Date();
@@ -27,6 +32,9 @@ exports.handler = async (event: any, context: any, callback: Function) => {
 
   console.info(`UTC: ${utcDate}`);
   console.info(`JST: ${jstDate}`);
+
+  // csv用データ
+  let csvRecords: Csv.Record[] = [];
 
   // let params = {
   //   'query': 'from:twitterdev -is:retweet',
@@ -57,32 +65,62 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     // console.log(tweets.statuses[0].text);
     console.log('--- each tweet of tweets ---');
     for (let tweet of tweets.statuses) {
-      console.log('+-----------+');
       console.info(tweet.created_at);
       console.info(tweet.text);
-      // console.dir(tweet, { depth: null });
-      console.log('+-----------+');
+      console.log('+--------------------------+');
+      let csvRecord: Csv.Record = {
+        created_at: tweet.created_at,
+        text:       tweet.text
+      }
+      csvRecords.push(csvRecord)
     }
-    // console.log('--- response ---');
-    // console.log(response);
   } catch (error) {
      console.warn('ERROR: Twitter.client.get');
      console.warn(error, error.stack);
     throw error;
   }
 
+  // CSV作成
+  const csvOptions = {
+    quoted_string: true,
+    header: true,
+    columns: {
+      created_at: "created at",
+      text: "text",
+    },
+  }
+
+  let csvString = '';
+  try {
+    csvString = await csvStringify(csvRecords, csvOptions);
+    console.log(csvString);
+  } catch(error) {
+     console.warn('ERROR: csvSringify');
+     console.warn(error, error.stack);
+  }
+  console.log(csvString);
+
+  // 物理的に書き出してみる
+  try {
+    await fs.writeFile('out.csv', csvString);
+  } catch(error) {
+     console.warn('ERROR: fs.writeFile');
+     console.warn(error, error.stack);
+  }
+
   // S3へ書き出す(yyyy-mm-dd/)
   let destparams = {
     Bucket: 'natural-language-with-tweets',
-    Key: `${format(jstDate, 'yyyy-MM-dd', {locale: ja})}/file.text`,
-    Body: "test",
-    ContentType: 'text/plain'
+    Key: `${format(jstDate, 'yyyy-MM-dd', {locale: ja})}/file.csv`,
+    Body: csvString,
+    ContentType: 'text/csv'
   };
 
   try {
     let putResult = await s3.putObject(destparams).promise();
-     console.log(putResult);
+    console.log(putResult);
   } catch(error) {
+     console.warn('ERROR: S3 put Object');
      console.warn(error, error.stack);
   }
 
