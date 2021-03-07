@@ -5,7 +5,6 @@ import { ja } from 'date-fns/locale'
 
 // const csvStringify = require('csv-stringify');
 const csvStringify = require('csv-stringify/lib/sync');
-const fs = require('fs').promises;
 
 // AWS
 // let AccessKeyId = process.env.AWS_ACCESS_KEY_ID
@@ -99,14 +98,6 @@ exports.handler = async (event: any, context: any, callback: Function) => {
      console.warn(error, error.stack);
   }
   console.log(csvString);
-
-  // 物理的に書き出してみる
-  try {
-    await fs.writeFile('out.csv', csvString);
-  } catch(error) {
-     console.warn('ERROR: fs.writeFile');
-     console.warn(error, error.stack);
-  }
 
   // S3へ書き出す(yyyy-mm-dd/)
   let destparams = {
