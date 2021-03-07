@@ -65,11 +65,11 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     console.log('--- each tweet of tweets ---');
     for (let tweet of tweets.statuses) {
       console.info(tweet.created_at);
-      console.info(tweet.text);
+      console.info(decodeURI(tweet.text));
       console.log('+--------------------------+');
       let csvRecord: Csv.Record = {
         created_at: tweet.created_at,
-        text:       tweet.text
+        text:       decodeURI(tweet.text)
       }
       csvRecords.push(csvRecord)
     }
