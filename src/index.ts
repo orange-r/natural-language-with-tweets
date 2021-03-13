@@ -23,6 +23,13 @@ const client = new Twitter({
 let token = process.env.BEARER_TOKEN;
 let endpointUrl = 'https://api.twitter.com/2/tweets/search/recent';
 
+// GCP
+// Imports the Google Cloud client library
+const gcpLanguage = require('@google-cloud/language')
+// Instantiates a client
+const gcpClient = new gcpLanguage.LanguageServiceClient();
+
+
 // called function
 exports.handler = async (event: any, context: any, callback: Function) => {
   // 現在時刻(Tokyo)
@@ -58,9 +65,35 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     let tweets = await client.get('search/tweets', { q: '魔王さま exclude:retweets', count: 3, lang: 'ja', locale: 'ja', result_type: 'recent' , max_id: null} );
     console.log('--- each tweet of tweets ---');
     for (let tweet of tweets.statuses) {
+      // let csvRecord: Csv.Record = {
+      //   created_at: tweet.created_at,
+      //   text:       decodeURI(tweet.text)
+      // }
+      // csvRecords.push(csvRecord)
+
+      // The text to analyze
+      const text = decodeURI(tweet.text);
+      
+      const document = {
+        content: text,
+        type: 'PLAIN_TEXT',
+      };
+      
+      // Detects the sentiment of the text
+      const [result] = await gcpClient.analyzeSentiment({document: document});
+      const sentiment = result.documentSentiment;
+      
+      console.log(`Text: ${text}`);
+      console.log(`Sentiment score: ${sentiment.score}`);
+      console.log(`Sentiment magnitude: ${sentiment.magnitude}`);
+      console.log(typeof sentiment.score);
+      console.log(typeof sentiment.magnitude);
+
       let csvRecord: Csv.Record = {
         created_at: tweet.created_at,
-        text:       decodeURI(tweet.text)
+        text:       decodeURI(tweet.text),
+        sentiment_score: sentiment.score,
+        sentiment_magnitude: sentiment.magnitude,
       }
       csvRecords.push(csvRecord)
     }
@@ -75,8 +108,10 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     quoted_string: true,
     header: true,
     columns: {
-      created_at: "created at",
-      text: "text",
+      created_at: 'created at',
+      text: 'text',
+      sentiment_score : 'sentiment_score',
+      sentiment_magnitude: 'sentiment_magnitude',
     },
   }
 
