@@ -130,7 +130,7 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   // S3へ書き出す(yyyy-mm-dd/)
   let destparams = {
     Bucket: 'natural-language-with-tweets',
-    Key: `${format(jstDate, 'yyyy-MM-dd', {locale: ja})}/file.csv`,
+    Key: `${format(jstDate, 'yyyy-MM-dd', {locale: ja})}/${format(jstDate, 'hhmmss', {locale: ja})}.csv`,
     Body: csvString,
     ContentType: 'text/csv'
   };
