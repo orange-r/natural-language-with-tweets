@@ -89,8 +89,9 @@ exports.handler = async (event: any, context: any, callback: Function) => {
       console.log(typeof sentiment.score);
       console.log(typeof sentiment.magnitude);
 
+      let dateFormat = 'yyyy/MM/dd hh:mm:ss'
       let csvRecord: Csv.Record = {
-        created_at: tweet.created_at,
+        created_at: format(utcToZonedTime(new Date(tweet.created_at), 'Asia/Tokyo'), dateFormat, {locale: ja}),
         text:       decodeURI(tweet.text),
         sentiment_score: sentiment.score,
         sentiment_magnitude: sentiment.magnitude,
