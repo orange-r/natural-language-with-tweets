@@ -63,13 +63,7 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   // Twitterからデータ取得
   try {
     let tweets = await client.get('search/tweets', { q: '魔王さま exclude:retweets', count: 3, lang: 'ja', locale: 'ja', result_type: 'recent' , max_id: null} );
-    console.log('--- each tweet of tweets ---');
     for (let tweet of tweets.statuses) {
-      // let csvRecord: Csv.Record = {
-      //   created_at: tweet.created_at,
-      //   text:       decodeURI(tweet.text)
-      // }
-      // csvRecords.push(csvRecord)
 
       // The text to analyze
       const text = decodeURI(tweet.text);
@@ -83,12 +77,6 @@ exports.handler = async (event: any, context: any, callback: Function) => {
       const [result] = await gcpClient.analyzeSentiment({document: document});
       const sentiment = result.documentSentiment;
       
-      console.log(`Text: ${text}`);
-      console.log(`Sentiment score: ${sentiment.score}`);
-      console.log(`Sentiment magnitude: ${sentiment.magnitude}`);
-      console.log(typeof sentiment.score);
-      console.log(typeof sentiment.magnitude);
-
       let dateFormat = 'yyyy/MM/dd hh:mm:ss'
       let csvRecord: Csv.Record = {
         created_at: format(utcToZonedTime(new Date(tweet.created_at), 'Asia/Tokyo'), dateFormat, {locale: ja}),
@@ -119,13 +107,11 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   let csvString = '';
   try {
     csvString = await csvStringify(csvRecords, csvOptions);
-    console.log(csvString);
   } catch(error) {
     console.warn('ERROR: csvSringify');
     console.warn(error, error.stack);
     throw error;
   }
-  console.log(csvString);
 
   // S3へ書き出す(yyyy-mm-dd/)
   let destparams = {
