@@ -85,6 +85,9 @@ exports.handler = async (event: any, context: any, callback: Function) => {
       let csvRecord: Csv.Record = {
         created_at: format(utcToZonedTime(new Date(tweet.created_at), 'Asia/Tokyo'), dateFormat, {locale: ja}),
         text:       decodeURI(tweet.text),
+        retweet_count: tweet.retweet_count,
+        favorite_count: tweet.favorite_count,
+        user_followers_count: tweet.user.followers_count,
         sentiment_score: sentiment.score,
         sentiment_magnitude: sentiment.magnitude,
       }
@@ -101,8 +104,11 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     quoted_string: true,
     header: true,
     columns: {
-      created_at: 'created at',
-      text: 'text',
+      created_at: 'created at',                     // ツイート日時
+      text: 'text',                                 // ツイート内容
+      retweet_count: 'retweet_count',               // リツイート数
+      favorite_count: 'favorite_count',             // いいね数
+      user_followers_count: 'user_followers_count', // ツイートした人のフォロワー数
       sentiment_score : 'sentiment_score',
       sentiment_magnitude: 'sentiment_magnitude',
     },
