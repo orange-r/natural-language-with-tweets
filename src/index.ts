@@ -62,7 +62,11 @@ exports.handler = async (event: any, context: any, callback: Function) => {
 
   // Twitterからデータ取得
   try {
-    let tweets = await client.get('search/tweets', { q: '魔王さま exclude:retweets', count: 3, lang: 'ja', locale: 'ja', result_type: 'recent' , max_id: null} );
+    let since = 'since:2021-03-20_00:00:00_JST';
+    let until = 'until:2021-03-21_00:00:00_JST';
+    // let q = `魔王さま exclude:retweets ${since} ${until}`
+    let q = '魔王さま exclude:retweets'
+    let tweets = await client.get('search/tweets', { q: q, count: 3, lang: 'ja', locale: 'ja', result_type: 'recent' , max_id: null} );
     for (let tweet of tweets.statuses) {
 
       // The text to analyze
