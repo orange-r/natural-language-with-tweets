@@ -1,5 +1,5 @@
 import needle = require('needle');
-import { format } from 'date-fns'
+import { format, subDays } from 'date-fns'
 import { utcToZonedTime } from 'date-fns-tz'
 import { ja } from 'date-fns/locale'
 
@@ -47,6 +47,9 @@ exports.handler = async (event: any, context: any, callback: Function) => {
 
   console.info(`UTC: ${utcDate}`);
   console.info(`JST: ${jstDate}`);
+  let utcYesterday: Date = subDays(new Date(), 1)
+  let jstYesterday: Date = utcToZonedTime(utcYesterday, 'Asia/Tokyo');
+  console.info(`JST(yesterday): ${jstYesterday}`);
 
   // csv用データ
   let csvRecords: Csv.Record[] = [];
