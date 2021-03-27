@@ -114,32 +114,41 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     },
   }
 
-  let csvString = '';
+  let s3Body = '';
   try {
-    csvString = await csvStringify(csvRecords, csvOptions);
+    s3Body = await csvStringify(csvRecords, csvOptions);
   } catch(error) {
     console.warn('ERROR: csvSringify');
     console.warn(error, error.stack);
     throw error;
   }
 
-  // S3へ書き出す(yyyy-mm-dd/)
-  let destparams = {
-    Bucket: 'natural-language-with-tweets',
-    Key: `${format(jstDate, 'yyyy-MM-dd', {locale: ja})}/${format(jstDate, 'hhmmss', {locale: ja})}.csv`,
-    Body: csvString,
-    ContentType: 'text/csv'
-  };
+  // S3へ書き出す(yyyy-mm-dd/file_name.csv)
+  let filePath: string = format(jstDate, 'yyyy-MM-dd', {locale: ja});
+  let fileName: string = `${format(jstDate, 'hhmmss', {locale: ja})}.csv`;
+  await uploadToS3(s3Body, fileName, filePath);
 
+
+  return ('Hello from Lambda with Typescript');
+}
+
+async function uploadToS3(body: string, fileName: string, filePath: string): Promise<void> {
+  let destparams = await s3CsvDestParams(body, fileName, filePath)
   try {
     let putResult = await s3.putObject(destparams).promise();
-    console.log(putResult);
+    console.debug(putResult);
   } catch(error) {
     console.warn('ERROR: S3 put Object');
     console.warn(error, error.stack);
     throw error;
   }
+};
 
-
-  return ('Hello from Lambda with Typescript');
-}
+async function s3CsvDestParams(body: string, fileName: string, filePath: string) {
+  return {
+    Bucket: 'natural-language-with-tweets',
+    Key: `${filePath}/${fileName}`,
+    Body: body,
+    ContentType: 'text/csv'
+  };
+};
