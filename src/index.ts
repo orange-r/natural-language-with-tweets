@@ -32,6 +32,15 @@ const gcpClient = new gcpLanguage.LanguageServiceClient();
 
 // called function
 exports.handler = async (event: any, context: any, callback: Function) => {
+  
+  console.debug(event);
+
+  // 'twitterQuery'パラメータが存在しない or 空 の場合はエラー
+  let twitterQuery = event.twitterQuery;
+  if (typeof twitterQuery === 'undefined' || twitterQuery === null || twitterQuery === '') {
+    throw('twitterQuery parameters are required in event.');
+  }
+
   // 現在時刻(Tokyo)
   let utcDate: Date = new Date();
   let jstDate: Date = utcToZonedTime(utcDate, 'Asia/Tokyo');
@@ -65,7 +74,8 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     let since = 'since:2021-03-20_00:00:00_JST';
     let until = 'until:2021-03-21_00:00:00_JST';
     // let q = `魔王さま exclude:retweets ${since} ${until}`
-    let q = '魔王さま exclude:retweets'
+    // let q = '魔王さま exclude:retweets'
+    let q = twitterQuery;
     let tweets = await client.get('search/tweets', { q: q, count: 3, lang: 'ja', locale: 'ja', result_type: 'recent' , max_id: null} );
     for (let tweet of tweets.statuses) {
 
