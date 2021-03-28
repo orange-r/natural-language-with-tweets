@@ -79,7 +79,15 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     // let q = `魔王さま exclude:retweets ${since} ${until}`
     // let q = '魔王さま exclude:retweets'
     let q = twitterQuery;
-    let tweets = await client.get('search/tweets', { q: q, count: 3, lang: 'ja', locale: 'ja', result_type: 'recent' , max_id: null} );
+    let twitterOptions ={
+      q: q,
+      count: 3,
+      lang: 'ja',
+      locale: 'ja',
+      result_type: 'recent' ,
+      max_id: null
+    };
+    let tweets = await client.get('search/tweets', twitterOptions);
     for (let tweet of tweets.statuses) {
 
       // The text to analyze
