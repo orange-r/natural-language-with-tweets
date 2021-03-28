@@ -54,24 +54,6 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   // csv用データ
   let csvRecords: Csv.Record[] = [];
 
-  // let params = {
-  //   'query': 'from:twitterdev -is:retweet',
-  //   'tweet.fields': 'author_id'
-  // }
-
-  // let headers = {
-  //     'User-Agent': 'v2RecentSearchJS',
-  //     'authorization': `Bearer ${token}`
-  //   }
-
-  // needle('get', endpointUrl, params, { headers: headers })
-  // .then( (response: needle.NeedleResponse) => {
-    // console.info(response.body);
-  // })
-  // .catch( (err: any) => {
-    // throw new Error('Unsuccessful request');
-  // })
-
   // Twitterからデータ取得
   try {
     let since = 'since:2021-03-20_00:00:00_JST';
