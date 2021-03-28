@@ -102,7 +102,7 @@ exports.handler = async (event: any, context: any, callback: Function) => {
       const [result] = await gcpClient.analyzeSentiment({document: document});
       const sentiment = result.documentSentiment;
       
-      let dateFormat = 'yyyy/MM/dd hh:mm:ss'
+      let dateFormat = 'yyyy/MM/dd HH:mm:ss'
       let csvRecord: Csv.Record = {
         created_at: format(utcToZonedTime(new Date(tweet.created_at), 'Asia/Tokyo'), dateFormat, {locale: ja}),
         text:       decodeURI(tweet.text),
@@ -146,7 +146,7 @@ exports.handler = async (event: any, context: any, callback: Function) => {
 
   // S3へ書き出す(yyyy-mm-dd/file_name.csv)
   let filePath: string = format(jstDate, 'yyyy-MM-dd', {locale: ja});
-  let fileName: string = `${format(jstDate, 'hhmmss', {locale: ja})}.csv`;
+  let fileName: string = `${format(jstDate, 'HHmmss', {locale: ja})}.csv`;
   await uploadToS3(s3Body, fileName, filePath);
 
 
