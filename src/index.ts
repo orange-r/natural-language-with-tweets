@@ -91,6 +91,8 @@ exports.handler = async (event: any, context: any, callback: Function) => {
         retweet_count: tweet.retweet_count,
         favorite_count: tweet.favorite_count,
         user_followers_count: tweet.user.followers_count,
+        location: tweet.user.location,
+        place: tweet.place,
         sentiment_score: sentiment.score,
         sentiment_magnitude: sentiment.magnitude,
       }
@@ -112,7 +114,9 @@ exports.handler = async (event: any, context: any, callback: Function) => {
       retweet_count: 'retweet_count',               // リツイート数
       favorite_count: 'favorite_count',             // いいね数
       user_followers_count: 'user_followers_count', // ツイートした人のフォロワー数
-      sentiment_score : 'sentiment_score',
+      location: 'user location',
+      place: 'twieet place',
+      sentiment_score: 'sentiment_score',
       sentiment_magnitude: 'sentiment_magnitude',
     },
   }
