@@ -60,18 +60,46 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   try {
     let since = 'since:2021-03-20_00:00:00_JST';
     let until = 'until:2021-03-21_00:00:00_JST';
-    // let q = `魔王さま exclude:retweets ${since} ${until}`
-    // let q = '魔王さま exclude:retweets'
     let q = twitterQuery;
+    // let q = `${twitterQuery} exclude:retweets ${since} ${until}`
+    // let max_id = '1376436756925480960';
+    let max_id = null;
     let twitterOptions ={
       q: q,
-      count: 3,
+      count: 100,
       lang: 'ja',
       locale: 'ja',
-      result_type: 'recent' ,
-      max_id: null
+      result_type: 'recent',
+      max_id: max_id
     };
+    console.info('--- twitterOptions ---');
+    console.dir(twitterOptions);
     let tweets = await client.get('search/tweets', twitterOptions);
+    // let tweets = await client.get('search/tweets', twitterOptions, await function(error: any, tweets: any, response: any) {
+    //   console.dir(response);
+    //   if(error) throw error;
+    //   return tweets;
+    // });
+    console.info(`getting in this call: ${tweets.statuses.length}`);
+    if (tweets.search_metadata == undefined) {
+      console.info('---- Complete (no metadata) ----');
+      // return 0;
+    }
+    else if (tweets.search_metadata.next_results) {
+      let maxId = tweets.search_metadata.next_results.match(/\?max_id=(\d*)/);
+      console.info(`max_id: ${maxId}`);
+
+      if (maxId[1] == null) {
+        // return 0;
+      }
+
+      console.info('---- next:' + maxId[1] + ' ----');
+      // searchTweet(queryArg, maxId[1]);
+    }
+    else {
+      console.info('---- Complete ----');
+      // return 0;
+    }
     for (let tweet of tweets.statuses) {
 
       // The text to analyze
