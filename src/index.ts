@@ -40,6 +40,8 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   if (typeof twitterQuery === 'undefined' || twitterQuery === null || twitterQuery === '') {
     throw('twitterQuery parameters are required in event.');
   }
+  // 'fileName'パラメータが存在しない or 空 の場合、後続処理で(実行日時の) HHmmss.csv とする
+  let fileName: string = event.fileName;
 
   // 現在時刻(Tokyo)
   let utcDate: Date = new Date();
@@ -132,7 +134,9 @@ exports.handler = async (event: any, context: any, callback: Function) => {
 
   // S3へ書き出す(yyyy-mm-dd/file_name.csv)
   let filePath: string = format(jstDate, 'yyyy-MM-dd', {locale: ja});
-  let fileName: string = `${format(jstDate, 'HHmmss', {locale: ja})}.csv`;
+  if (fileName === null || fileName === undefined) {
+    fileName = `${format(jstDate, 'HHmmss', {locale: ja})}.csv`;
+  }
   await uploadToS3(s3Body, fileName, filePath);
 
 
