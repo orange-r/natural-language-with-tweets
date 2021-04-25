@@ -182,7 +182,7 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   await uploadToS3(s3Body, fileName, filePath);
 
 
-  return ('Hello from Lambda with Typescript');
+  return ('processing completed.');
 }
 
 async function uploadToS3(body: string, fileName: string, filePath: string): Promise<void> {
