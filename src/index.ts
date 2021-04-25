@@ -103,7 +103,14 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     for (let tweet of tweets.statuses) {
 
       // The text to analyze
-      const text = decodeURI(tweet.text);
+      let text;
+      try {
+        text = decodeURI(tweet.text);
+      } catch (error) {
+        console.warn(`ERROR: decodeURI(${tweet.text})`);
+        console.warn(error, error.stack);
+        text = tweet.text;
+      }
       
       const document = {
         content: text,
@@ -117,7 +124,7 @@ exports.handler = async (event: any, context: any, callback: Function) => {
       let dateFormat = 'yyyy/MM/dd HH:mm:ss'
       let csvRecord: Csv.Record = {
         created_at: format(utcToZonedTime(new Date(tweet.created_at), 'Asia/Tokyo'), dateFormat, {locale: ja}),
-        text:       decodeURI(tweet.text),
+        text:       text,
         retweet_count: tweet.retweet_count,
         favorite_count: tweet.favorite_count,
         user_followers_count: tweet.user.followers_count,
