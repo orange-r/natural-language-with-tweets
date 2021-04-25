@@ -55,20 +55,15 @@ exports.handler = async (event: any, context: any, callback: Function) => {
 
   console.debug(`S3 Dir: ${format(jstYesterday, 'yyyy-MM', {locale: ja})}`);
   console.debug(`対象日: ${format(jstYesterday, 'yyyy-MM-dd', {locale: ja})}`);
-  let since: string = `since:${format(jstYesterday, 'yyyy-MM-dd', {locale: ja})}_00:00:00_JST`;
-  let until: string = `until:${format(jstYesterday, 'yyyy-MM-dd', {locale: ja})}_23:59:59_JST`;
-  console.debug(since);
-  console.debug(until);
 
   // csv用データ
   let csvRecords: Csv.Record[] = [];
 
   // Twitterからデータ取得
   try {
-    // let since = 'since:2021-03-20_00:00:00_JST';
-    // let until = 'until:2021-03-21_00:00:00_JST';
-    let q = twitterQuery;
-    // let q = `${twitterQuery} exclude:retweets ${since} ${until}`
+    let since: string = `since:${format(jstYesterday, 'yyyy-MM-dd', {locale: ja})}_00:00:00_JST`;
+    let until: string = `until:${format(jstYesterday, 'yyyy-MM-dd', {locale: ja})}_23:59:59_JST`;
+    let q = `${twitterQuery} ${since} ${until}`
     // let max_id = '1376436756925480960';
     let max_id = null;
     let twitterOptions ={
@@ -177,7 +172,11 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   // S3へ書き出す(yyyy-MM/file_name.csv)
   let filePath: string = format(jstYesterday, 'yyyy-MM', {locale: ja});
   if (fileName === null || fileName === undefined) {
+    // fileNameの指定がない場合は{実行日時(yyyyMMdd)}.csv
     fileName = `${format(jstDate, 'HHmmss', {locale: ja})}.csv`;
+  } else {
+    // fileNameの指定がある場合は、{ツイート対象日時(yyyyMMdd)}_fileName
+    fileName = format(jstYesterday, 'yyyyMMdd', {locale: ja}) + '_' + fileName;
   }
   await uploadToS3(s3Body, fileName, filePath);
 
