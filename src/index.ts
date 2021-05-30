@@ -29,6 +29,13 @@ const gcpLanguage = require('@google-cloud/language')
 // Instantiates a client
 const gcpClient = new gcpLanguage.LanguageServiceClient();
 
+// Slack
+const { IncomingWebhook } = require('@slack/webhook');
+// Read a url from the environment variables
+const slack_webhook_url = process.env.SLACK_WEBHOOK_URL;
+// Initialize
+const webhook = new IncomingWebhook(slack_webhook_url);
+
 
 // called function
 exports.handler = async (event: any, context: any, callback: Function) => {
@@ -60,10 +67,10 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   let csvRecords: Csv.Record[] = [];
 
   // Twitterからデータ取得
+  let since: string = `since:${format(jstYesterday, 'yyyy-MM-dd', {locale: ja})}_00:00:00_JST`;
+  let until: string = `until:${format(jstYesterday, 'yyyy-MM-dd', {locale: ja})}_23:59:59_JST`;
+  let q = `${twitterQuery} ${since} ${until}`
   try {
-    let since: string = `since:${format(jstYesterday, 'yyyy-MM-dd', {locale: ja})}_00:00:00_JST`;
-    let until: string = `until:${format(jstYesterday, 'yyyy-MM-dd', {locale: ja})}_23:59:59_JST`;
-    let q = `${twitterQuery} ${since} ${until}`
     // let max_id = '1376436756925480960';
     let max_id = null;
     let twitterOptions ={
@@ -180,6 +187,21 @@ exports.handler = async (event: any, context: any, callback: Function) => {
   }
   await uploadToS3(s3Body, fileName, filePath);
 
+  await webhook.send({
+    color: '#2EB886',
+    pretext: 'processing completed.',
+    text: '取得件数出したい',
+    fields: [
+      {
+          title: 'Query',
+          value: twitterQuery,
+      },
+      {
+          title: '対象日',
+          value: format(jstYesterday, 'yyyy-MM-dd', {locale: ja}),
+      }
+  ]
+  });
 
   return ('processing completed.');
 }
