@@ -15,14 +15,20 @@ provider "aws" {
   region = "ap-northeast-1"
 }
 
+# lambdaに使用するコンテナイメージの保存先
+data "aws_ecr_repository" "lambda_containter" {
+  name = "natural-language-with-tweets"
+}
+
 resource "aws_iam_role" "iam_for_lambda" {
   # name = "" # If omitted, Terraform will assign a random, unique name.
   assume_role_policy = file("files/iam-role.json")
 }
 
-# lambdaに使用するコンテナイメージの保存先
-data "aws_ecr_repository" "lambda_containter" {
-  name = "natural-language-with-tweets"
+resource "aws_iam_role_policy" "iam_for_lambda" {
+  # name = "" # If omitted, Terraform will assign a random, unique name.
+  role = aws_iam_role.iam_for_lambda.id
+  policy = file("files/iam-policy.json")
 }
 
 resource "aws_lambda_function" "default" {
