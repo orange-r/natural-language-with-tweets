@@ -90,6 +90,24 @@ exports.handler = async (event: any, context: any, callback: Function) => {
     //   return tweets;
     // });
     console.info(`getting in this call: ${tweets.statuses.length}`);
+    if (tweets.statuses.length == 0) {
+      await webhook.send({
+        color: '#2EB886',
+        pretext: 'processing completed.',
+        text: `取得件数: ${tweets.statuses.length}件`,
+        fields: [
+          {
+              title: 'Query',
+              value: twitterQuery,
+          },
+          {
+              title: '対象日',
+              value: format(jstYesterday, 'yyyy-MM-dd', {locale: ja}),
+          }
+      ]
+      });
+      return (`processing completed. (${tweets.statuses.length} records)`);
+    }
     if (tweets.search_metadata == undefined) {
       console.info('---- Complete (no metadata) ----');
       // return 0;
